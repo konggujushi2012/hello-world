@@ -12,7 +12,7 @@
 .fader .pager_list li:hover, .fader .pager_list li.active { opacity: 1; }
 .banner:hover .fader_controls .page.prev { opacity: 0.5; left: 0 }
 .banner:hover .fader_controls .page.next { opacity: 0.5; right: 0 }
-.imginfo { z-index: 9; position: absolute; font-size: 26px; color: #FFF; display: block; overflow: hidden; bottom: 12%; left: 0; right: 0; display: block; background: #00000000; padding: 0 40px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
+.imginfo { z-index: 9; position: absolute; font-size: 26px; color: #FFF; display: block; overflow: hidden; bottom: 12%; left: 0; right: 0; display: block; background: #00000011; padding: 0 40px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden; }
 /*toppic*/
 .toppic { width: 32%; float: right; overflow: hidden; position: relative; }
 .toppic li { width: 100%; background: #000; position: relative; overflow: hidden; }
@@ -27,7 +27,7 @@
 .toppic li:last-child { margin-top: 19px }
 /*blogsbox*/
 .blogsbox { width: 66%; overflow: hidden; float: left }
-.blogs { overflow: hidden; margin-bottom: 20px; padding: 20px; background: #FFF; -webkit-box-shadow: 0 2px 5px 0 rgba(146, 146, 146, .1); -moz-box-shadow: 0 2px 5px 0 rgba(146, 146, 146, .1); box-shadow: 0 2px 5px 0 rgba(146, 146, 146, .1); -webkit-transition: all 0.6s ease; -moz-transition: all 0.6s ease; -o-transition: all 0.6s ease; transition: all 0.6s ease; }
+.blogs { overflow: hidden; margin-bottom: 10px; padding: 20px; background: #FFF; -webkit-box-shadow: 0 2px 5px 0 rgba(146, 146, 146, .1); -moz-box-shadow: 0 2px 5px 0 rgba(146, 146, 146, .1); box-shadow: 0 2px 5px 0 rgba(146, 146, 146, .1); -webkit-transition: all 0.6s ease; -moz-transition: all 0.6s ease; -o-transition: all 0.6s ease; transition: all 0.6s ease; }
 .blogs .blogpic { float: left; width: 30%; max-height: 170px; margin-right: 20px; display: block; overflow: hidden; }
 .blogs .blogpic img { width: 100%; height: auto; -webkit-transition: all 0.6s ease; -moz-transition: all 0.6s ease; -o-transition: all 0.6s ease; transition: all 0.6s ease; margin-bottom: 10px }
 .blogs .blogpic :hover img { transform: scale(1.1) }
@@ -43,6 +43,7 @@
 .bloginfo .timer { background: url(../images/auicon.jpg) no-repeat top -44px left; }
 .bloginfo .view { background: url(../images/auicon.jpg) no-repeat top -64px left; }
 .bloginfo .like { background: url(../images/auicon.jpg) no-repeat top -85px left; }
+hr{border:solid 0.5px #bfbfbf;}
 /*bplist*/
 .bplist { width: 100%; overflow: hidden; display: block; margin-bottom: 20px }
 .bplist li { float: left; width: 32.8%; height: 174px; overflow: hidden; }
@@ -56,7 +57,7 @@
 .bigpic:hover img { opacity: 0.8 }
 /*sidebar*/
 .sidebar { width: 32%; overflow: hidden; float: right }
-.sidebar div { padding: 35px 30px; margin-bottom: 20px; background: #FFF; -webkit-box-shadow: 0 2px 5px 0 rgba(146, 146, 146, .1); -moz-box-shadow: 0 2px 5px 0 rgba(146, 146, 146, .1); box-shadow: 0 2px 5px 0 rgba(146, 146, 146, .1); }
+.sidebar div { padding: 35px 30px; margin-bottom: 10px; background: #FFF; -webkit-box-shadow: 0 2px 5px 0 rgba(146, 146, 146, .1); -moz-box-shadow: 0 2px 5px 0 rgba(146, 146, 146, .1); box-shadow: 0 2px 5px 0 rgba(146, 146, 146, .1); }
 .hometitle { font-size: 18px; color: #282828; font-weight: 600; margin: 0; text-transform: uppercase; padding-bottom: 15px; margin-bottom: 25px; position: relative; }
 .hometitle:after { content: ""; background-color: #282828; left: 0; width: 50px; height: 2px; bottom: 0; position: absolute; -webkit-transition: 0.5s; -moz-transition: 0.5s; -ms-transition: 0.5s; -o-transition: 0.5s; transition: 0.5s; }
 .sidebar div:hover ::after { width: 70px; }
@@ -132,7 +133,7 @@ _margin-top: 100px; }
 .news_infos { float: left; margin-bottom: 20px; width: 66%; background: #fff; -webkit-box-shadow: 0 2px 5px 0 rgba(146, 146, 146, .1); -moz-box-shadow: 0 2px 5px 0 rgba(146, 146, 146, .1); box-shadow: 0 2px 5px 0 rgba(146, 146, 146, .1); }
 .news_infos ul { padding: 30px 40px; text-align: justify; line-height: 1.8; font-size: 16px; }
 h1.t_nav span { float: right; color: #000; }
-h1.t_nav { border-bottom: #bfbfbf 1px solid; font-size: 14px; font-weight: normal; line-height: 40px; width: 100%; overflow: hidden; margin-bottom: 20px }
+h1.t_nav { border-bottom: #bfbfbf 1px solid; font-size: 14px; font-weight: normal; line-height: 40px; width: 100%; overflow: hidden; margin-bottom: 10px }
 .n1, .n2 { width: 100px; display: block; text-align: center; float: left; color: #fff; }
 .n1 { background: #000; }
 .n2 { background: #3a6ab5; }
@@ -147,7 +148,7 @@ h1.t_nav { border-bottom: #bfbfbf 1px solid; font-size: 14px; font-weight: norma
 .pagebg { margin-top: 80px; padding: 100px 0; text-align: center; width: 100%; }
 /*pagebg.pagebg p { font-size: 36px; color: #FFF; }*/
 .ab { background: url(../images/blank.jpg) no-repeat; background-size: cover; background-position: top center; }
-.sh { background: url(../images/page_bg.jpg) no-repeat; background-size: cover; background-position: top center; }
+.sh { background: url(../images/blank.jpg) no-repeat; background-size: cover; background-position: top center; }
 .timer { background: url(../images/page_time.jpg) no-repeat; background-size: cover; background-position: top center; }
 /*share*/
 .share { overflow: hidden; padding-top: 10px }
@@ -173,7 +174,7 @@ h1.t_nav { border-bottom: #bfbfbf 1px solid; font-size: 14px; font-weight: norma
 .timebox li:hover span { color: #000 }
 /*infosbox*/
 .infosbox { float: left; width: 66%; overflow: hidden; background: #FFF; }
-.newsview { padding: 0 30px }
+.newsview { padding: 0 20px }
 .intitle { line-height: 40px; height: 40px; font-size: 14px; ; border-bottom: #000 2px solid; }
 .intitle a { font-weight: normal; }
 .news_title { font-size: 24px; font-weight: normal; padding: 30px 0 0 0; color: #333; }
@@ -190,8 +191,8 @@ h1.t_nav { border-bottom: #bfbfbf 1px solid; font-size: 14px; font-weight: norma
 .tags a { background: #F4650E; padding: 3px 8px; margin: 0 5px 0 0; color: #fff; }
 .tags { margin: 30px 0; }
 .infosbox .news_con { line-height: 1.8; font-size: 16px; text-align: justify; }
-.infosbox .news_con p { margin-bottom: 25x }
-.infosbox .news_con img { max-width: 650px; height: auto; }
+.infosbox .news_con p { margin-bottom: 20px; }
+.infosbox .news_con img { max-width: 100%; height: auto; }
 .infosbox .share { padding: 20px; }
 .nextinfo { line-height: 24px; width: 100%; background: #FFF; border-radius: 10px; overflow: hidden; margin: 20px 0 }
 .nextinfo p { padding: 4px 10px; border-radius: 5px; }

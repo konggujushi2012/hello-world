@@ -1,39 +1,13 @@
 <?php get_header(); ?>
-<article> 
-  <!--banner begin-->
- <div class="picsbox"> 
-  <div class="banner">
-    <div id="banner" class="fader">
-	  <?php $query = get_banner_posts(); ?>
-	  <?php if($query->have_posts()) : while($query->have_posts()) : $query->the_post(); ?>
-		<li class="slide" ><a href="<?php echo get_permalink(); ?>" target="_blank"><img src="<?php echo catch_that_image(get_the_content(),$out); ?>"><span class="imginfo"><?php the_title(); ?></span></a></li>
-	  <?php endwhile; else : ?>
-		<p><?php _e('Sorry, no page found.'); ?></p>
-	  <?php endif; wp_reset_postdata();//必须要加上此句重置查询 ?>
-      <div class="fader_controls">
-        <div class="page prev" data-target="prev">&lsaquo;</div>
-        <div class="page next" data-target="next">&rsaquo;</div>
-        <ul class="pager_list">
-        </ul>
-      </div>
-    </div>
-  </div>
-  <!--banner end-->
-  <div class="toppic">
-	<?php $query = get_topright_posts(); ?>
-	<?php if($query->have_posts()) : while($query->have_posts()) : $query->the_post(); ?>
-		<li> <a href="<?php echo get_permalink(); ?>" target="_blank"> <i><img src="<?php echo catch_that_image(get_the_content(),$out); ?>"></i>
-		<h2><?php the_title(); ?></h2>
-		<span><?php echo get_first_cat_name(); ?></span> </a> </li>
-	<?php endwhile; else : ?>
-		<p><?php _e('Sorry, no page found.'); ?></p>
-	<?php endif; wp_reset_postdata();//必须要加上此句重置查询 ?>
-  </div>
-  </div>
-  <div class="blank"></div>
+<div class="pagebg sh"></div>
+<div class="container">
+  <h1 class="t_nav">
+	<span>这里是标签页，你会看到所有标记为此标签的文章。</span>
+	<a href="http://www.runtimego.com" class="n1">网站首页</a><a href="<?php echo get_current_tag_link(); ?>" class="n2"><?php single_tag_title(); ?></a>
+  </h1>
   <!--blogsbox begin-->
   <div class="blogsbox">
-	<?php if(have_posts()) : while(have_posts()) : the_post(); ?>
+    <?php if(have_posts()) : while(have_posts()) : the_post(); ?>
 	<div class="blogs" data-scroll-reveal="enter bottom over 1s" >
 	  <h3 class="blogtitle"><a href="<?php echo get_permalink(); ?>" target="_blank"><?php the_title(); ?></a></h3>
 	  <?php $cate_name = get_post_imagetype() ; ?><!--通过分类名来判断怎样显示文章-->
@@ -68,8 +42,16 @@
 		<p><?php _e('Sorry, no post found.'); ?></p>
 	<?php endif; ?>
     
+    
+    <!--<div class="pagelist">
+		<a title="Total record">&nbsp;<b>45</b> </a>&nbsp;&nbsp;&nbsp;<b>1</b>&nbsp;
+		<a href="/download/index_2.html">2</a>&nbsp;
+		<a href="/download/index_2.html">下一页</a>&nbsp;
+		<a href="/download/index_2.html">尾页</a>
+	</div>-->
+    
   </div>
   <!--blogsbox end-->
   <?php get_sidebar(); ?>
-</article>
-<?php get_footer(); ?>
+</div>
+<?php get_footer();?>

@@ -1,72 +1,41 @@
 <div class="sidebar">
-    <!--<div class="zhuanti">
-      <h2 class="hometitle">特别推荐</h2>
-      <ul>
-        <li> <i><img src="<?php bloginfo('template_directory'); ?>/images/banner03.jpg"></i>
-          <p>帝国cms调用方法 <span><a href="/">阅读</a></span> </p>
-        </li>
-        <li> <i><img src="<?php bloginfo('template_directory'); ?>/images/b04.jpg"></i>
-          <p>5.20 我想对你说 <span><a href="/">阅读</a></span></p>
-        </li>
-        <li> <i><img src="<?php bloginfo('template_directory'); ?>/images/b05.jpg"></i>
-          <p>个人博客，属于我的小世界！ <span><a href="/">阅读</a></span></p>
-        </li>
-      </ul>
-    </div>-->
     <div class="tuijian">
       <h2 class="hometitle">推荐文章</h2>
       <ul class="tjpic">
-        <i><img src="<?php bloginfo('template_directory'); ?>/images/toppic01.jpg"></i>
-        <p><a href="/">别让这些闹心的套路，毁了你的网页设计</a></p>
+	  <?php $query = get_recommend_top_post(); ?>
+	  <?php if($query->have_posts()) : while($query->have_posts()) : $query->the_post(); ?>
+		<i><img src="<?php echo catch_that_image(get_the_content(),$out); ?>"></i>
+		<p><a href="<?php echo get_permalink(); ?>"><?php the_title(); ?></a></p>
+	  <?php endwhile; else : ?>
+		<p><?php _e('Sorry, no page found.'); ?></p>
+	  <?php endif; wp_reset_postdata();//必须要加上此句重置查询 ?>
       </ul>
       <ul class="sidenews">
-        <li> <i><img src="<?php bloginfo('template_directory'); ?>/images/toppic01.jpg"></i>
-          <p><a href="/">别让这些闹心的套路，毁了你的网页设计</a></p>
-          <span>2018-05-13</span> </li>
-        <li> <i><img src="<?php bloginfo('template_directory'); ?>/images/toppic02.jpg"></i>
-          <p><a href="/">给我模板PSD源文件，我给你设计HTML！</a></p>
-          <span>2018-05-13</span> </li>
-        <li> <i><img src="<?php bloginfo('template_directory'); ?>/images/v1.jpg"></i>
-          <p><a href="/">别让这些闹心的套路，毁了你的网页设计</a></p>
-          <span>2018-05-13</span> </li>
-        <li> <i><img src="<?php bloginfo('template_directory'); ?>/images/v2.jpg"></i>
-          <p><a href="/">给我模板PSD源文件，我给你设计HTML！</a></p>
-          <span>2018-05-13</span> </li>
+	  <?php $query = get_recommend_posts(); ?>
+	  <?php if($query->have_posts()) : while($query->have_posts()) : $query->the_post(); ?>
+		<li> <i><img src="<?php echo catch_that_image(get_the_content(),$out); ?>"></i>
+          <p><a href="<?php echo get_permalink(); ?>"><?php the_title(); ?></a></p>
+          <span>2018-05-13</span>
+		</li>
+	  <?php endwhile; else : ?>
+		<p><?php _e('Sorry, no page found.'); ?></p>
+	  <?php endif; wp_reset_postdata();//必须要加上此句重置查询 ?>
       </ul>
     </div>
-    <!--<div class="tuijian">
-      <h2 class="hometitle">点击排行</h2>
-      <ul class="tjpic">
-        <i><img src="<?php bloginfo('template_directory'); ?>/images/toppic01.jpg"></i>
-        <p><a href="/">别让这些闹心的套路，毁了你的网页设计</a></p>
-      </ul>
-      <ul class="sidenews">
-        <li> <i><img src="<?php bloginfo('template_directory'); ?>/images/toppic01.jpg"></i>
-          <p><a href="/">别让这些闹心的套路</a></p>
-          <span>2018-05-13</span> </li>
-        <li> <i><img src="<?php bloginfo('template_directory'); ?>/images/toppic02.jpg"></i>
-          <p><a href="/">给我模板PSD源文件，我给你设计HTML！</a></p>
-          <span>2018-05-13</span> </li>
-        <li> <i><img src="<?php bloginfo('template_directory'); ?>/images/v1.jpg"></i>
-          <p><a href="/">别让这些闹心的套路，毁了你的网页设计</a></p>
-          <span>2018-05-13</span> </li>
-        <li> <i><img src="<?php bloginfo('template_directory'); ?>/images/v2.jpg"></i>
-          <p><a href="/">给我模板PSD源文件，我给你设计HTML！</a></p>
-          <span>2018-05-13</span> </li>
-      </ul>
-    </div>-->
     <div class="cloud">
       <h2 class="hometitle">标签云</h2>
       <ul>
-        <a href="/">陌上花开</a> <a href="/">校园生活</a> <a href="/">html5</a> <a href="/">SumSung</a> <a href="/">青春</a> <a href="/">温暖</a> <a href="/">阳光</a> <a href="/">三星</a><a href="/">索尼</a> <a href="/">华维荣耀</a> <a href="/">三星</a> <a href="/">索尼</a>
+	  <?php $tags = get_pre_count_tags(12); ?>
+	  <?php foreach($tags as $tag) {?>
+		<a href="<?php echo $tag->link; ?>"><?php echo $tag->name; ?></a>
+	  <?php } ?>
       </ul>
     </div>
     <div class="links">
       <h2 class="hometitle">友情链接</h2>
       <ul>
-        <li><a href="http://www.yangqq.com" target="_blank">杨青博客</a></li>
-        <li><a href="http://www.yangqq.com" target="_blank">D设计师博客</a></li>
-        <li><a href="http://www.yangqq.com" target="_blank">优秀个人博客</a></li>
+        <li><a href="#" target="_blank">微信公众号：说好英语</a></li>
+		<li class="wx"><img src="<?php bloginfo('template_directory'); ?>/images/wx.jpg"></li>
       </ul>
     </div>
     <!--<div class="guanzhu" id="follow-us">

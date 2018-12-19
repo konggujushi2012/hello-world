@@ -2,9 +2,10 @@
 <html>
 <head>
 <meta charset="gbk">
-<title><?php wp_title(); ?></title>
-<meta name="keywords" content="个人博客,杨青个人博客,个人博客模板,杨青" />
-<meta name="description" content="杨青个人博客，是一个站在web前端设计之路的女程序员个人网站，提供个人博客模板免费资源下载的个人原创网站。" />
+<link id="favicon" href="http://www.runtimego.com/favicon.ico" rel="icon" type="image/x-icon" />
+<title><?php if (is_home()||is_search()) { bloginfo('name'); } else{wp_title(''); echo ' | '; bloginfo('name');} ?> </title>
+<meta name="keywords" content="丹青的个人博客" />
+<meta name="description" content="这是个有点文艺的程序员写的个人博客，丹青。" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <?php wp_head(); ?>
 </head>
@@ -13,7 +14,7 @@
   <!--menu begin-->
   <div class="menu">
     <nav class="nav" id="topnav">
-      <h1 class="logo"><a href="http://www.yangqq.com">三年一班</a></h1>
+      <h1 class="logo"><a href="http://www.runtimego.com">三年一班</a></h1>
 	  <?php 
 		$defaults = array(
 			'container' => false,
@@ -39,7 +40,7 @@
   <!--menu end--> 
   <!--mnav begin-->
   <div id="mnav">
-    <h2><a href="http://www.yangqq.com" class="mlogo">三年一班</a><span class="navicon"></span></h2>
+    <h2><a href="http://www.runtimego.com" class="mlogo">三年一班</a><span class="navicon"></span></h2>
     <dl class="list_dl">
       <?php 
 		$defaults = array(

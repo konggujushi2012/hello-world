@@ -28,10 +28,11 @@
 	}
 	add_action('init','xzht_register_menus');
 	
-	remove_filter('the_content', 'wpautop');
+	//remove_filter('the_content', 'wpautop');
 	remove_filter('the_excerpt', 'wpautop');
 	remove_filter('comment_text', 'wpautop');
 	
+	//获取文章中的图片及其url
 	function catch_that_image($post_content,&$all_imgs) 
 	{
 		$first_img = '';
@@ -53,11 +54,42 @@
 		return $first_img;
 	}
 	
+	//获取分类为banner的文章
 	function get_banner_posts()
 	{
 		$args = array(
 			'category_name' => 'banner',   // 分类ID
 			'posts_per_page' => 3, // 显示篇数
+		);
+		$query = new WP_Query( $args );
+		return $query;
+	}
+	//获取文章分类为topright的文章
+	function get_topright_posts()
+	{
+		$args = array(
+			'category_name' => 'topright',   // 分类ID
+			'posts_per_page' => 2, // 显示篇数
+		);
+		$query = new WP_Query( $args );
+		return $query;
+	}
+	
+	function get_recommend_top_post()
+	{
+		$args = array(
+			'category_name' => 'recommendtop',   // 分类ID
+			'posts_per_page' => 1, // 显示篇数
+		);
+		$query = new WP_Query( $args );
+		return $query;
+	}
+	
+	function get_recommend_posts()
+	{
+		$args = array(
+			'category_name' => 'recommend',   // 分类ID
+			'posts_per_page' => 4, // 显示篇数
 		);
 		$query = new WP_Query( $args );
 		return $query;
@@ -72,10 +104,60 @@
 			$parent = get_cat_name($category->category_parent);
 			if($parent == 'imagetype')//判断其父分类是否是'imagetype'
 			{
-				$cate_name = $category->cat_name;//如果其父分类是'imagetype'，那么认为此第一个分类就是imagetype类型
+				$cate_name = $category->slug;//如果其父分类是'imagetype'，那么认为此第一个分类就是imagetype类型
 				break;
 			}				
 		}  
 		return $cate_name;
+	}
+	function get_first_cat_name()
+	{
+		$categories = get_the_category();
+		$cate_name = '';
+		foreach($categories as $category)  
+		{  
+			if($category->slug == 'english' || $category->slug == 'literature' || $category->slug == 'technology')
+			{
+				$cate_name = $category->cat_name;//如果是这三种分类中的一种，则输出分类名称
+				break;	
+			}				
+		}  
+		return $cate_name;
+	}
+	function get_cat_link($cat_name)
+	{
+		$category_id = get_cat_ID($cat_name);
+		$category_link = get_category_link( $category_id );
+		return $category_link;
+	}
+	function get_current_cat_link()
+	{
+		$cat_ID = get_query_var('cat');
+		$category_link = get_category_link($cat_ID);
+		return $category_link;
+	}
+	
+	function get_current_tag_link()
+	{
+		$tag_id = get_query_var('tag');
+		$tag_link = get_tag_link($tag_id);
+		return $tag_link;
+	}
+	
+	function get_pre_count_tags($count)
+	{
+		$tags = get_terms("post_tag");
+		$num = 0;
+		foreach ( $tags as $key => $tag ) 
+		{
+			if($num >= $count)
+			{
+				break;
+			}
+			$link = get_term_link( intval($tag->term_id), "post_tag" );
+			$tags[ $key ]->link = $link;
+			$num++;
+		}
+		return $tags;
 	}
 ?>

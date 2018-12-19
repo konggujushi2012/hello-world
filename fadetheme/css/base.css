@@ -7,16 +7,16 @@ ul, li { list-style: none; }
 a { text-decoration: none; color: #555 }
 a:hover { text-decoration: none; color: #00A7EB; }
 .clear { clear: both; }
-.blank { height: 20px; overflow: hidden; width: 100%; margin: auto; clear: both }
+.blank { height: 10px; overflow: hidden; width: 100%; margin: auto; clear: both }
 .blank100 { height: 100px; overflow: hidden; width: 100%; margin: auto; clear: both }
 .f_l { float: left }
 .f_r { float: right }
 .mt20 { margin-top: 20px }
 header { width: 100%; background: rgba(255,255,255,1); }
-article { width: 1140px; margin: 100px auto 0; overflow: hidden }
+article { width: 1140px; margin: 90px auto 0; overflow: hidden }
 .tophead { width: 1200px; margin: 0 auto 10px; overflow: hidden; }
 header { position: fixed; top: 0; z-index: 99999 }
-.container { width: 1140px; margin: 20px auto }
+.container { width: 1140px; margin: 10px auto }
 /*nav*/
 .logo { float: left; margin-right: 80px; font-size: 26px; }
 .logo a { color: #00A7EB }
