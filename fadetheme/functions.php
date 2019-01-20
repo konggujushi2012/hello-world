@@ -5,6 +5,7 @@
 		wp_enqueue_style('index_css',get_template_directory_uri().'/css/index.css');
 		wp_enqueue_style('m_css',get_template_directory_uri().'/css/m.css');
 		wp_enqueue_style('page_css',get_template_directory_uri().'/css/page.css');
+		wp_enqueue_style('partner_css',get_template_directory_uri().'/css/englishpartner.css');
 	}
 	add_action('wp_enqueue_scripts','xzht_theme_styles');
 	

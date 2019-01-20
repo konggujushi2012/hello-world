@@ -1,0 +1,13 @@
+ @charset "gb2312";
+.signup { padding: 20px 20px; background-color:white; height: auto;}
+.signup  p{ margin-bottom:20px; line-height: 1.8; font-size: 14px; }
+.wpcf7{margin:0 auto;vertical-align:middle;/* width:90%; */}
+label.label_title{color:#4c567f;font-size:15px;font-weight:bold;}
+span.required{color:red;}
+.wpcf7-form-control{width:100%; height:20px;}
+select.wpcf7-form-control{height:25px; font: 15px "Microsoft YaHei";color:#555555;}
+option{font: 15px "Microsoft YaHei"; color:#555555;line-height:1.8; height:20px;}
+.wpcf7-textarea{height:100px;font: 15px "Microsoft YaHei";color:#555555;}
+input.wpcf7-submit{height:30px;background-color:#0199fe;font: 16px "Microsoft YaHei";color:white;border:none;}
+input.wpcf7-submit:hover{color:#eeeeee;cursor:pointer;}
+img{text-align:center;margin:0 auto;}

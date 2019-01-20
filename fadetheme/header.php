@@ -7,7 +7,17 @@
 <meta name="keywords" content="丹青的个人博客" />
 <meta name="description" content="这是个有点文艺的程序员写的个人博客，丹青。" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="baidu-site-verification" content="DbpTmBOPRv" />
 <?php wp_head(); ?>
+<script>
+var _hmt = _hmt || [];
+(function() {
+  var hm = document.createElement("script");
+  hm.src = "https://hm.baidu.com/hm.js?4c665bf0f40aa438244aed4a25f07694";
+  var s = document.getElementsByTagName("script")[0]; 
+  s.parentNode.insertBefore(hm, s);
+})();
+</script>
 </head>
 <body>
 <header> 
