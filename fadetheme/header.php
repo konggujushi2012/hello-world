@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="gbk">
-<link id="favicon" href="http://www.runtimego.com/favicon.ico" rel="icon" type="image/x-icon" />
+<link id="favicon" href="https://www.runtimego.com/favicon.ico" rel="icon" type="image/x-icon" />
 <title><?php if (is_home()||is_search()) { bloginfo('name'); } else{wp_title(''); echo ' | '; bloginfo('name');} ?> </title>
 <meta name="keywords" content="丹青的个人博客" />
 <meta name="description" content="这是个有点文艺的程序员写的个人博客，丹青。" />
@@ -24,7 +24,7 @@ var _hmt = _hmt || [];
   <!--menu begin-->
   <div class="menu">
     <nav class="nav" id="topnav">
-      <h1 class="logo"><a href="http://www.runtimego.com">三年一班</a></h1>
+      <h1 class="logo"><a href="https://www.runtimego.com">三年一班</a></h1>
 	  <?php 
 		$defaults = array(
 			'container' => false,
@@ -50,7 +50,7 @@ var _hmt = _hmt || [];
   <!--menu end--> 
   <!--mnav begin-->
   <div id="mnav">
-    <h2><a href="http://www.runtimego.com" class="mlogo">三年一班</a><span class="navicon"></span></h2>
+    <h2><a href="https://www.runtimego.com" class="mlogo">三年一班</a><span class="navicon"></span></h2>
     <dl class="list_dl">
       <?php 
 		$defaults = array(

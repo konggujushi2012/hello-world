@@ -3,7 +3,7 @@
 <div class="container">
   <h1 class="t_nav">
 	<span>这里是标签页，你会看到所有标记为此标签的文章。</span>
-	<a href="http://www.runtimego.com" class="n1">网站首页</a><a href="<?php echo get_current_tag_link(); ?>" class="n2"><?php single_tag_title(); ?></a>
+	<a href="https://www.runtimego.com" class="n1">网站首页</a><a href="<?php echo get_current_tag_link(); ?>" class="n2"><?php single_tag_title(); ?></a>
   </h1>
   <!--blogsbox begin-->
   <div class="blogsbox">

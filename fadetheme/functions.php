@@ -1,4 +1,12 @@
 <?php 
+
+	// 定义公共常量：主题文件夹
+	define( 'TPL_DIR', get_template_directory() );
+	// Log信息输出
+	function wplog( $str = '', $tag = '' ) {
+	    $split = ( $tag=='' ) ? '' : ":\t";
+	    file_put_contents( TPL_DIR.'/wp.log', $tag . $split . $str . "\n", FILE_APPEND );
+	}
 	function xzht_theme_styles()
 	{
 		wp_enqueue_style('base_css',get_template_directory_uri().'/css/base.css');
@@ -161,4 +169,199 @@
 		}
 		return $tags;
 	}
+
+	add_action('wpcf7_before_send_mail', 'my_get_form_values');
+
+	function my_get_form_values($contact_form)
+	{
+		if ($contact_form->name() == "sign-up") //your contact form 7 id
+		{
+			//get info about the form and current submission instance
+			$submission = WPCF7_Submission::get_instance();
+			if ( $submission )
+			{
+				$posted_data = $submission->get_posted_data();
+				//var_dump($posted_data);
+				if(check_wechat_exist($posted_data) === true)
+				{
+					redirect_page('http://localhost/wordpress/signupresult?result=1');
+				}
+				else
+				{
+					$ret = save_data_into_database($posted_data);
+					if(!$ret)
+					{
+						redirect_page('http://localhost/wordpress/signupresult?result=2');
+					}
+					else
+					{
+						redirect_page('http://localhost/wordpress/signupresult?result=0');
+					}
+				}
+				
+			}
+		}
+	}
+	
+	function redirect_page($url)
+	{
+		$script .= '<script>'.PHP_EOL;
+		$script .= 'window.location.href = "'.$url.'";'.PHP_EOL;
+		$script .= '</script>'.PHP_EOL;
+		echo $script;
+	}
+
+	define('TABLE_PARTNER', $wpdb->prefix . 'partners');
+	define('TABLE_APPLICATION', $wpdb->prefix .'applications');
+	//global $wpdb;
+
+	function check_wechat_exist($partner_data)
+	{
+		global $wpdb;
+		$query = "SELECT * FROM ".TABLE_PARTNER." where wechat_id="."'".$partner_data["wechat"]."'";
+		$var = $wpdb->query($query);
+		if($var == 0)
+		{
+			return false;
+		}
+		return true;
+	}
+	
+	function save_data_into_database($partner_data)
+	{
+		global $wpdb;
+	    $data['nickname'] = $partner_data["nickname"];
+	    $data['wechat_id'] = $partner_data["wechat"];
+	    $data['telephone']  = "";
+	    if($partner_data["sex"] == "男"){
+	    	$data["sex"] = 0;
+	    }else{
+	    	$data["sex"] = 1;
+	    }
+	    
+	    if($partner_data["level"] == "新手"){
+	    	$data["english_level"] = 0;
+	    }else if($partner_data["level"] == "四级"){
+	    	$data["english_level"] = 1;
+	    }else if($partner_data["level"] == "六级"){
+	    	$data["english_level"] = 2;
+	    }else if($partner_data["level"] == "专业"){
+	    	$data["english_level"] = 3;
+	    }else{
+	    	$data["english_level"] = 0;
+	    }
+
+	    foreach($partner_data["purpose"] as $purpose)
+	    {
+	    	if($purpose == "出国旅游"){
+		    	$data["purpose"] = 0;
+		    }else if($purpose == "工作需要"){
+		    	$data["purpose"] = 1;
+		    }else if($purpose == "日常交流"){
+		    	$data["purpose"] = 2;
+		    }else if($purpose == "自我提升"){
+		    	$data["purpose"] = 3;
+		    }else{
+		    	$data["purpose"] = 4;
+	    }
+	    }
+	    
+	    $data["prefer_sex"] = 1;
+	    $data["message"] = $partner_data["message"];
+
+	    return $wpdb->insert(TABLE_PARTNER, $data);
+	}
+
+	function query_openid($code,&$openid)
+	{
+		$http = new WP_Http;
+		$app_id = 'wxb697f58addb123fb';
+		$app_secret = '1e80231bd9e1bd373d1921445068c735';
+		$params = array( 'appid' => $app_id, 'secret' => $app_secret,'js_code' => $code, 'grant_type' => 'authorization_code' );
+		$result = $http->request( 'https://api.weixin.qq.com/sns/jscode2session', array( 'method' => 'POST', 'body' => $params ) );
+		if($result['response']['code'] == 200)
+		{
+			wplog('query_openid: $http->request jscode2session success');
+			$openid = $result['body']['openid'];
+			return 0;
+		}
+		return $result['response']['code'];
+	}
+
+	function insert_partner_data($request)
+	{
+		global $wpdb;
+		$data['nickname'] = $request['nickname'];
+		$data['wechat'] = $request['wechat'];
+		$data['telephone'] = $request['telephone'];
+		$data["sex"] = $request['sex'];
+		$data["purpose"] = $request['purpose'];
+		$data["prefer_sex"] = 1;
+		$data["message"] = $request["message"];
+		$data['avatar'] = $request['avatar'];
+		$data['country'] = $request['country'];
+		$data['province'] = $request['province'];
+		$data['city'] = $request['city'];
+		$openid = "";
+
+		$query_ret = query_openid($request['code'],$openid);
+		if($openid == "")
+		{
+			return new WP_Error( '102', esc_html__( 'Query openid failed.', 'english-partner' ), array( 'status' => $query_ret ) );
+		}
+
+		$data['openid'] = $openid;
+		if(!$wpdb->insert(TABLE_PARTNER, $data))
+		{
+			return new WP_Error( '101', esc_html__( 'Insert partner info failed.', 'english-partner' ), array( 'status' => 101 ) );
+		}
+		else
+		{
+			return new WP_Error( '0', esc_html__( 'success.', 'english-partner' ), array( 'status' => 0 ) );
+		}
+	}
+
+	function get_partner_data($request)
+	{
+		$wechat = $request['wechat'];
+	}
+
+	function get_apply_record($request)
+	{
+		$openid = "";
+		$query_ret = query_openid($request['code'],$openid);
+		if($openid == "")
+		{
+			return new WP_Error( '102', esc_html__( 'Query openid failed.', 'english-partner' ), array( 'status' => $query_ret ) );
+		}
+		$sql = "select * form " . TABLE_APPLICATION . " where openid = ". "'".$openid."'";
+		$var = $wpdb -> get_row($sql, ARRAY_A);
+		if($var == null)
+		{
+			return new WP_Error( '103', esc_html__( 'Database query failed.', 'english-partner' ), array( 'status' => 103 ) );
+		}
+		else if(empty($var))
+		{
+			return new WP_Error( '104', esc_html__( 'No apply record.', 'english-partner' ), array( 'status' => 104 ) );
+		}
+
+		return new WP_REST_Response( $var, 0 );
+	}
+	
+	function register_partner_routes()
+	{
+		register_rest_route('english-partner/v1','partners',array(
+			'methods' => 'POST',
+			'callback' => 'insert_partner_data',
+		));
+		register_rest_route('english-partner/v1','partners',array(
+			'methods' => 'GET',
+			'callback' => 'get_partner_data',
+		));
+		register_rest_route('english-partner/v1','applications',array(
+			'methods' => 'GET',
+			'callback' => 'get_apply_record',
+		));
+	}
+	add_action('rest_api_init','register_partner_routes');
 ?>

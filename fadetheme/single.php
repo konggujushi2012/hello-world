@@ -2,7 +2,7 @@
 <article>
 	<?php if(have_posts()) : while(have_posts()) : the_post(); ?>
 	<h1 class="t_nav"><span>您现在的位置是：首页 > <?php echo get_first_cat_name(); ?></span>
-		<a href="http://www.runtimego.com" class="n1">网站首页</a>
+		<a href="https://www.runtimego.com" class="n1">网站首页</a>
 		<a href="<?php echo get_cat_link(get_first_cat_name()); ?>" class="n2"><?php echo get_first_cat_name(); ?></a>
 	</h1>
 	  <div class="infosbox">

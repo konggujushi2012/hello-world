@@ -3,7 +3,7 @@
 <div class="container">
   <h1 class="t_nav">
 	<span>人生实苦，但不要轻言放弃，唯有努力才能不负此生。</span>
-	<a href="http://www.runtimego.com" class="n1">网站首页</a><a href="<?php echo get_current_cat_link();; ?>" class="n2"><?php single_cat_title(); ?></a>
+	<a href="https://www.runtimego.com" class="n1">网站首页</a><a href="<?php echo get_current_cat_link();; ?>" class="n2"><?php single_cat_title(); ?></a>
   </h1>
   <!--blogsbox begin-->
   <div class="blogsbox">
