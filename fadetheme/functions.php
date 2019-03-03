@@ -1,12 +1,4 @@
 <?php 
-
-	// 定义公共常量：主题文件夹
-	define( 'TPL_DIR', get_template_directory() );
-	// Log信息输出
-	function wplog( $str = '', $tag = '' ) {
-	    $split = ( $tag=='' ) ? '' : ":\t";
-	    file_put_contents( TPL_DIR.'/wp.log', $tag . $split . $str . "\n", FILE_APPEND );
-	}
 	function xzht_theme_styles()
 	{
 		wp_enqueue_style('base_css',get_template_directory_uri().'/css/base.css');
@@ -213,6 +205,7 @@
 
 	define('TABLE_PARTNER', $wpdb->prefix . 'partners');
 	define('TABLE_APPLICATION', $wpdb->prefix .'applications');
+	date_default_timezone_set('PRC');//设置为中国时区
 	//global $wpdb;
 
 	function check_wechat_exist($partner_data)
@@ -274,15 +267,23 @@
 
 	function query_openid($code,&$openid)
 	{
+		$current_time = date('Y-m-d h:i:s', time());
+		wplog('query_openid start excute.code: ', $code);
 		$http = new WP_Http;
 		$app_id = 'wxb697f58addb123fb';
 		$app_secret = '1e80231bd9e1bd373d1921445068c735';
-		$params = array( 'appid' => $app_id, 'secret' => $app_secret,'js_code' => $code, 'grant_type' => 'authorization_code' );
-		$result = $http->request( 'https://api.weixin.qq.com/sns/jscode2session', array( 'method' => 'POST', 'body' => $params ) );
+		//开发文档写的是GET方法请求，这里用POST方法是不行的
+		// $params = array( 'appid' => $app_id, 'secret' => $app_secret,'js_code' => $code, 'grant_type' => 'authorization_code' );
+		// $result = $http->request( 'https://api.weixin.qq.com/sns/jscode2session', array( 'method' => 'POST', 'body' => $params ) );
+		$url = 'https://api.weixin.qq.com/sns/jscode2session?appid='.$app_id.'&secret='.$app_secret;
+		$url = $url.'&js_code='.$code.'&grant_type=authorization_code';
+		wplog('request url: ',$url);
+		$result = $http->request($url);
 		if($result['response']['code'] == 200)
 		{
-			wplog('query_openid: $http->request jscode2session success');
-			$openid = $result['body']['openid'];
+			$session_data = json_decode($result['body']);
+			$openid = $session_data->openid;
+			wplog('request success. session_data: ',$result['body']);
 			return 0;
 		}
 		return $result['response']['code'];
@@ -291,14 +292,15 @@
 	function insert_partner_data($request)
 	{
 		global $wpdb;
-		$data['nickname'] = $request['nickname'];
-		$data['wechat'] = $request['wechat'];
+		$data['nickname'] = $request['nickName'];
+		$data['wechat_id'] = $request['wechat'];
 		$data['telephone'] = $request['telephone'];
-		$data["sex"] = $request['sex'];
+		$data["sex"] = $request['gender'];
+		$data['english_level'] = $request['level'];
 		$data["purpose"] = $request['purpose'];
 		$data["prefer_sex"] = 1;
 		$data["message"] = $request["message"];
-		$data['avatar'] = $request['avatar'];
+		$data['avatar_url'] = $request['avatarUrl'];
 		$data['country'] = $request['country'];
 		$data['province'] = $request['province'];
 		$data['city'] = $request['city'];
@@ -307,18 +309,39 @@
 		$query_ret = query_openid($request['code'],$openid);
 		if($openid == "")
 		{
-			return new WP_Error( '102', esc_html__( 'Query openid failed.', 'english-partner' ), array( 'status' => $query_ret ) );
+			return new WP_Error( '102', esc_html__( 'Query openid failed.', 'english-partner' ), array( 'status' => $query_ret) );
 		}
-
-		$data['openid'] = $openid;
-		if(!$wpdb->insert(TABLE_PARTNER, $data))
+		if(check_partner_exist($openid))
 		{
-			return new WP_Error( '101', esc_html__( 'Insert partner info failed.', 'english-partner' ), array( 'status' => 101 ) );
+			wplog('insert_partner_data ,check : partner has exist.');
 		}
 		else
 		{
-			return new WP_Error( '0', esc_html__( 'success.', 'english-partner' ), array( 'status' => 0 ) );
+			$data['openid'] = $openid;
+			if(!$wpdb->insert(TABLE_PARTNER, $data))
+			{
+				return new WP_Error( '101', esc_html__( 'Insert partner info failed.', 'english-partner' ), array( 'status' => 101 ) );
+			}
+			else
+			{
+				$result['code'] = 0;
+				$result['message'] = "success.";
+				return rest_ensure_response( $result );
+			}
 		}
+		
+	}
+
+	function check_partner_exist($openid)
+	{
+		$sql_partner = "select * from " . TABLE_PARTNER . " where openid = ". "'".$openid."'";
+		wplog('database query ,sql : ',$sql_partner);
+		$var = $wpdb -> get_row($sql_partner, ARRAY_A);
+		if($var != null && empty($var))
+		{
+			return true;
+		}
+		return false;
 	}
 
 	function get_partner_data($request)
@@ -326,26 +349,54 @@
 		$wechat = $request['wechat'];
 	}
 
+	function insert_apply_record()
+	{
+		
+	}
+
 	function get_apply_record($request)
 	{
-		$openid = "";
+		global $wpdb;
+		wplog('get_apply_record: request: ', $request['code']);
+		$openid = $request['code'];
 		$query_ret = query_openid($request['code'],$openid);
 		if($openid == "")
 		{
 			return new WP_Error( '102', esc_html__( 'Query openid failed.', 'english-partner' ), array( 'status' => $query_ret ) );
 		}
-		$sql = "select * form " . TABLE_APPLICATION . " where openid = ". "'".$openid."'";
+		$sql = "select * from " . TABLE_APPLICATION . " where openid = ". "'".$openid."'";
+		$sql_partner = "select * from " . TABLE_PARTNER . " where openid = '11123'";
+		wplog('database query ,sql : ',$sql);
 		$var = $wpdb -> get_row($sql, ARRAY_A);
+		wplog('get_row end,$var : ',$var);
+
 		if($var == null)
 		{
-			return new WP_Error( '103', esc_html__( 'Database query failed.', 'english-partner' ), array( 'status' => 103 ) );
+			return new WP_Error( '103', esc_html__( 'Database query failed.', 'english-partner' ), array( 'status' => 103) );
 		}
 		else if(empty($var))
 		{
 			return new WP_Error( '104', esc_html__( 'No apply record.', 'english-partner' ), array( 'status' => 104 ) );
 		}
+		$result['code'] = 0;
+		$result['message'] = "success.";
+		$result['data'] = $var;
 
-		return new WP_REST_Response( $var, 0 );
+		return rest_ensure_response( $result );
+		//return new WP_REST_Response( $result, 0 );
+		//return new WP_Error( '200', esc_html__( 'success.', 'english-partner' ), $var );
+	}
+
+	// Log信息输出
+	function wplog( $str, $tag ) 
+	{
+		$current_time = date('Y-m-d h:i:s', time());
+	    file_put_contents( get_template_directory().'/wp.log', $current_time . ': ' . $str . $tag . "\n", FILE_APPEND );
+	}
+
+	function function_test($request)
+	{
+		return new WP_Error( '103', esc_html__( 'Database query failed.', 'english-partner' ), array( 'status' => 103 ) );
 	}
 	
 	function register_partner_routes()
@@ -361,6 +412,10 @@
 		register_rest_route('english-partner/v1','applications',array(
 			'methods' => 'GET',
 			'callback' => 'get_apply_record',
+		));
+		register_rest_route('english-partner/v1','test',array(
+			'methods' => 'GET',
+			'callback' => 'function_test',
 		));
 	}
 	add_action('rest_api_init','register_partner_routes');
