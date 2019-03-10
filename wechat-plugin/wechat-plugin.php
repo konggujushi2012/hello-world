@@ -17,6 +17,8 @@ Author URI: http://www.runtimego.com
 define('WECHAT_PLUGIN_VERSION_NUM', '1.0');
 define('WECHAT_PLUGIN_MINIMUM_WP_VERSION', '4.0');
 
+date_default_timezone_set('PRC');//设置为中国时区
+
 // 声明全局变量$wpdb 和 数据表名常量
 global $wpdb;
 define('TABLE_PARTNER', $wpdb->prefix . 'partners');
@@ -73,7 +75,7 @@ function plugin_activation_cretable() {
     $sql_apply = "CREATE TABLE " . TABLE_APPLICATION . " (
         id int(9) NOT NULL AUTO_INCREMENT,
         openid tinytext NOT NULL,
-        current_period tinyint NOT NULL,
+        current_period int NOT NULL,
         current_status tinyint NOT NULL,
         apply_time datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
         start_time datetime NOT NULL,
@@ -96,7 +98,7 @@ register_activation_hook(__FILE__, 'plugin_activation_insertdate');
 function plugin_activation_insertdate() {
     global $wpdb;
     
-    $data['openid'] = '1112';
+    $data['openid'] = '19880916';
     $data['nickname'] = '丹青';
     $data['wechat_id'] = 'konggujushi2012';
     $data['telephone']  = '123456789';
@@ -107,6 +109,12 @@ function plugin_activation_insertdate() {
 
 
     $wpdb->insert(TABLE_PARTNER, $data);
+
+    $apply['openid'] = '19880916';
+    $apply['current_period'] = 1;
+    $apply['start_time'] = date('Y-m-d H:i:s', time());
+
+    $wpdb->insert(TABLE_APPLICATION, $apply);
 }
 
 // 当加载插件时，运行回调方法检查插件版本是否有更新,
