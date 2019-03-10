@@ -59,7 +59,7 @@
 		  <li class="author"><a href="#"><?php the_author(); ?></a></li>
 		  <li class="lmname"><a href="<?php echo get_cat_link(get_first_cat_name()); ?>"><?php echo get_first_cat_name(); ?></a></li>
 		  <li class="timer"><?php the_modified_date('Y-m-d'); ?></li>
-		  <li class="view"><span>567</span>已阅读</li>
+		  <li class="view"><span><?php get_post_views(get_the_ID()); ?></span>次阅读</li>
 		  <li class="like">99</li>
 		</ul>
 	  </div>

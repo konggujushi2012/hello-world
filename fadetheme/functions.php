@@ -162,6 +162,40 @@
 		return $tags;
 	}
 
+	function set_post_views()
+	{
+		if (is_single() || is_page())
+		{
+			global $post; 
+			$post_id = $post -> ID; 
+			$count_key = 'views';
+			$view_count = get_post_meta($post_id, $count_key, true);
+			if($view_count == '')
+			{
+				add_post_meta($post_id, $count_key, 1, true); 
+			}
+			else
+			{
+				update_post_meta($post_id, $count_key, ($view_count + 1));
+			}
+		}
+
+	}
+
+	add_action('get_header', 'set_post_views');
+
+	function get_post_views($post_id)
+	{
+		$count_key = 'views'; 
+		$view_count = get_post_meta($post_id, $count_key, true);
+		if($view_count == '')
+		{
+			add_post_meta($post_id, $count_key, 1, true); 
+			$view_count = 1;
+		}
+		echo $view_count;
+	}
+
 	add_action('wpcf7_before_send_mail', 'my_get_form_values');
 
 	function my_get_form_values($contact_form)
@@ -205,6 +239,7 @@
 
 	define('TABLE_PARTNER', $wpdb->prefix . 'partners');
 	define('TABLE_APPLICATION', $wpdb->prefix .'applications');
+	define('PERIOD_RECORD', '19880916');
 	date_default_timezone_set('PRC');//设置为中国时区
 	//global $wpdb;
 
@@ -305,15 +340,21 @@
 		$data['province'] = $request['province'];
 		$data['city'] = $request['city'];
 		$openid = "";
-
 		$query_ret = query_openid($request['code'],$openid);
 		if($openid == "")
 		{
 			return new WP_Error( '102', esc_html__( 'Query openid failed.', 'english-partner' ), array( 'status' => $query_ret) );
 		}
-		if(check_partner_exist($openid))
+		if(check_partner_exist($openid))//先判断合伙人信息是否已经存在，如果已经存在则插入报名信息
 		{
-			wplog('insert_partner_data ,check : partner has exist.');
+			wplog('insert_partner_data ,check : partner has exist.openid: ', $openid);
+			if(!insert_apply_record($openid))
+			{
+				return new WP_Error( '105', esc_html__( 'Insert apply_record info failed.', 'english-partner' ), array( 'status' => 105 ) );
+			}
+			$result['code'] = 0;
+			$result['message'] = "success.";
+			return rest_ensure_response( $result );
 		}
 		else
 		{
@@ -324,6 +365,11 @@
 			}
 			else
 			{
+				wplog('insert_partner_data ,check : partner has exist.openid: ', $openid);
+				if(!insert_apply_record($openid))
+				{
+					return new WP_Error( '105', esc_html__( 'Insert apply_record info failed.', 'english-partner' ), array( 'status' => 105 ) );
+				}
 				$result['code'] = 0;
 				$result['message'] = "success.";
 				return rest_ensure_response( $result );
@@ -334,24 +380,82 @@
 
 	function check_partner_exist($openid)
 	{
+		global $wpdb;
 		$sql_partner = "select * from " . TABLE_PARTNER . " where openid = ". "'".$openid."'";
 		wplog('database query ,sql : ',$sql_partner);
 		$var = $wpdb -> get_row($sql_partner, ARRAY_A);
-		if($var != null && empty($var))
+		wplog('database query ,sql result : ',$var);
+		if($var == null || empty($var))
 		{
-			return true;
+			wplog('database query , no data .');
+			return false;
 		}
-		return false;
+		return true;
 	}
 
 	function get_partner_data($request)
 	{
+		global $wpdb;
 		$wechat = $request['wechat'];
 	}
 
-	function insert_apply_record()
+	function get_current_period($openid)
 	{
-		
+		global $wpdb;
+		$sql = "select * from " . TABLE_APPLICATION . " where openid = ". "'".$openid."'";
+		wplog('database query ,sql : ',$sql);
+		$var = $wpdb -> get_row($sql, ARRAY_A);
+		if($var == null || empty($var))
+		{
+			wplog('period record is not exist,openid : ',$openid);
+			return 1;
+		}
+		return $var['current_period'];
+	}
+
+	function insert_apply_record($openid)
+	{
+		global $wpdb;
+		$data['openid'] = $openid;
+		$data['current_period'] = get_current_period(PERIOD_RECORD);
+		$data['current_status'] = 1;//1表示已报名，正在匹配
+		if(!$wpdb->insert(TABLE_APPLICATION, $data))
+		{
+			return false;
+		}
+		return true;
+
+	}
+	function check_apply_record_exist($openid)
+	{
+		global $wpdb;
+		$current_period = get_current_period(PERIOD_RECORD);
+		wplog('current period is : ',$current_period);
+
+		$sql = "select * from " . TABLE_APPLICATION . " where openid = ". "'".$openid."'";
+		$sql = $sql . " and current_period = " . $current_period;
+		wplog('database query ,sql : ',$sql);
+		$var = $wpdb -> get_row($sql, ARRAY_A);
+		wplog('get_row end,$var : ',$var);
+
+		if($var == null || empty($var))
+		{
+			wplog('apply_record is not exist,openid : ',$openid);
+			return false;
+		}
+		return true;
+	}
+
+	function update_apply_record($requst,$openid)
+	{
+		global $wpdb;
+		$var = $wpdb->update(TABLE_APPLICATION,$request,array('openid' => $openid));
+		if($var == false || $var <= 0)
+		{
+			wplog('apply_record update failed,openid : ',$openid);
+			return false;
+		}
+		return true;
 	}
 
 	function get_apply_record($request)
@@ -364,8 +468,11 @@
 		{
 			return new WP_Error( '102', esc_html__( 'Query openid failed.', 'english-partner' ), array( 'status' => $query_ret ) );
 		}
+		$current_period = get_current_period(PERIOD_RECORD);
+		wplog('current period is : ',$current_period);
+
 		$sql = "select * from " . TABLE_APPLICATION . " where openid = ". "'".$openid."'";
-		$sql_partner = "select * from " . TABLE_PARTNER . " where openid = '11123'";
+		$sql = $sql . " and current_period = " . $current_period;
 		wplog('database query ,sql : ',$sql);
 		$var = $wpdb -> get_row($sql, ARRAY_A);
 		wplog('get_row end,$var : ',$var);
@@ -378,6 +485,7 @@
 		{
 			return new WP_Error( '104', esc_html__( 'No apply record.', 'english-partner' ), array( 'status' => 104 ) );
 		}
+
 		$result['code'] = 0;
 		$result['message'] = "success.";
 		$result['data'] = $var;
@@ -390,7 +498,7 @@
 	// Log信息输出
 	function wplog( $str, $tag ) 
 	{
-		$current_time = date('Y-m-d h:i:s', time());
+		$current_time = date('Y-m-d H:i:s', time());
 	    file_put_contents( get_template_directory().'/wp.log', $current_time . ': ' . $str . $tag . "\n", FILE_APPEND );
 	}
 
