@@ -21,8 +21,9 @@ date_default_timezone_set('PRC');//设置为中国时区
 
 // 声明全局变量$wpdb 和 数据表名常量
 global $wpdb;
-define('TABLE_PARTNER', $wpdb->prefix . 'partners');
+define('TABLE_PARTNER', $wpdb->prefix . 'partners');//已经在functions.php中定义了
 define('TABLE_APPLICATION', $wpdb->prefix .'applications');
+define('TABLE_GROUP', $wpdb->prefix .'groups');
 
 
 // 插件激活时，运行回调方法创建数据表, 在WP原有的options表中插入插件版本号
@@ -56,6 +57,7 @@ function plugin_activation_cretable() {
         wechat_id varchar(32) NOT NULL,
         telephone varchar(20) NOT NULL,
         sex tinyint NOT NULL,
+        birthday date DEFAULT '2000-01-01',
         avatar_url text NOT NULL,
         country varchar(32) NOT NULL,
         province varchar(32) NOT NULL,
@@ -64,6 +66,7 @@ function plugin_activation_cretable() {
         purpose tinyint NOT NULL,
         prefer_sex tinyint NOT NULL,
         message text NOT NULL,
+        reserved tinytext NOT NULL,
         UNIQUE KEY id (id)
     ) $charset_collate;";
 
@@ -78,17 +81,32 @@ function plugin_activation_cretable() {
         current_period int NOT NULL,
         current_status tinyint NOT NULL,
         apply_time datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        start_time datetime NOT NULL,
-        end_time datetime NOT NULL,
+        start_time datetime,
+        end_time datetime,
         sign_record tinytext NOT NULL,
-        partner varchar(20) NOT NULL,
+        partner tinytext NOT NULL,
+        group_name varchar(32) NOT NULL,
+        reserved tinytext NOT NULL,
         UNIQUE KEY id (id)
     ) $charset_collate;";
 
+    $sql_group = "CREATE TABLE " . TABLE_GROUP . " (
+        id int(9) NOT NULL AUTO_INCREMENT,
+        group_name varchar(32) NOT NULL,
+        partner1 tinytext NOT NULL,
+        partner2 tinytext NOT NULL,
+        current_period int NOT NULL,
+        create_time datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+        modify_time datetime,
+        sign_record tinytext NOT NULL,
+        reserved tinytext NOT NULL,
+        UNIQUE KEY id (id)
+    ) $charset_collate;";
+    
     require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
     dbDelta( $sql );
     dbDelta( $sql_apply);
-
+    dbDelta( $sql_group);
     // update_option()方法，在options表里如果不存在更新字段，则会创建该字段,存在则更新该字段
     update_option('wechat_plugin_version_num', WECHAT_PLUGIN_VERSION_NUM);
 }
@@ -133,5 +151,47 @@ function plugin_deactivation_deltable() {
 
     $wpdb->query("DROP TABLE IF EXISTS " . TABLE_PARTNER);
     $wpdb->query("DROP TABLE IF EXISTS " . TABLE_APPLICATION);
+    $wpdb->query("DROP TABLE IF EXISTS " . TABLE_GROUP);
     delete_option('wechat_plugin_version_num');
 }
+
+add_filter('cron_schedules', 'cron_add_minutely');
+function cron_add_minutely( $schedules )
+{
+    //wplog('cron_add_minutely, schedules: ',$schedules);
+    // Adds once minute to the existing schedules.
+    $schedules['minutely'] = array(
+        'interval' => 60, // 1分钟
+        'display' => __('Once Minutely')
+    );
+    return $schedules;
+}
+
+register_activation_hook( __FILE__, 'my_activation' );
+
+function my_activation() 
+{
+    wplog('my_activation, : ','excute');
+    $args = array( 1, 2 );
+    if (! wp_next_scheduled ( 'my_minutely_event', $args )) 
+    {
+        wplog('wp_next_scheduled, : ','false');
+        wp_schedule_event( time(), 'minutely', 'my_minutely_event', $args );
+    }
+}
+
+add_action( 'my_minutely_event', 'do_this_minutey', 10, 2 );
+function do_this_minutey($args_1, $args_2 ) 
+{
+    //wplog('do_this_minutey,$var : ',$args_1);
+}
+
+register_deactivation_hook( __FILE__, 'my_deactivation' );
+function my_deactivation() 
+{
+    wp_clear_scheduled_hook( 'my_minutely_event' );
+}
+
+include_once('wechat-setting.php');
+
+?>

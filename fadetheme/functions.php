@@ -393,10 +393,18 @@
 		return true;
 	}
 
-	function get_partner_data($request)
+	function get_partner_data($openid)
 	{
 		global $wpdb;
-		$wechat = $request['wechat'];
+		$sql = "select * from " . TABLE_PARTNER . " where openid = ". "'".$openid."'";
+		wplog('database query ,sql : ',$sql);
+		$var = $wpdb -> get_row($sql, ARRAY_A);
+		if($var == null || empty($var))
+		{
+			wplog(' partner is not exist,openid : ',$openid);
+			return null;
+		}
+		return $var;
 	}
 
 	function get_current_period($openid)
@@ -457,7 +465,7 @@
 		}
 		return true;
 	}
-
+	//RESTAPI接口，获取报名记录
 	function get_apply_record($request)
 	{
 		global $wpdb;
@@ -485,10 +493,27 @@
 		{
 			return new WP_Error( '104', esc_html__( 'No apply record.', 'english-partner' ), array( 'status' => 104 ) );
 		}
+		unset($var['openid']);
+
+		//获取当前用户的基本信息及报名信息
+		$partner = get_partner_data($openid);
+		if($partner == null)
+		{
+			return new WP_Error( '106', esc_html__( 'No this partner.', 'english-partner' ), array( 'status' => 106) );
+		}
+		unset($partner['openid']);
+
+		//获取匹配的合伙人信息
+		$match_partner = get_partner_data($var['partner']);
+		if($match_partner != null)
+		{
+			$var['partner'] = $match_partner['wechat_id'];//将当前用户的匹配合伙人openid换成微信号
+		}
 
 		$result['code'] = 0;
 		$result['message'] = "success.";
-		$result['data'] = $var;
+		$result['apply_data'] = $var;
+		$result['partner_data'] = $partner;
 
 		return rest_ensure_response( $result );
 		//return new WP_REST_Response( $result, 0 );
@@ -527,4 +552,67 @@
 		));
 	}
 	add_action('rest_api_init','register_partner_routes');
+
+	function test_func()
+	{
+		wplog('test_func: ','this is a test');
+	}
+
+	//include_once('wechat-setting.php'); 
+	function my_custom_post_task() {
+		$labels = array(
+			'name'              => _x( 'Tasks', '任务' ),
+			'singular_name'      => _x( 'Task', '任务' ),
+			'add_new'            => _x( '添加任务', '添加新任务的链接名称' ),
+			'add_new_item'      => __( '添加一个新任务' ),
+			'edit_item'          => __( '编辑任务' ),
+			'new_item'          => __( '新任务' ),
+			'all_items'          => __( '所有任务' ),
+			'view_item'          => __( '查看任务' ),
+			'search_items'      => __( '搜索任务' ),
+			'not_found'          => __( '没有找到相关任务' ),
+			'not_found_in_trash' => __( '回收站里面没有相关任务' ),
+			'parent_item_colon'  => '',
+			'menu_name'          => '任务'
+		);
+
+		$args = array(
+			'labels'        => $labels,
+			'description'  => '这是为微信小程序自定义的英语学习任务类型',
+			'public'        => true,
+			'menu_position' => 5,
+			'supports'      => array( 'title', 'editor', 'thumbnail', 'excerpt', 'comments' ),
+			'has_archive'  => true,
+			'taxonomies'    => array('post_tag'), //没有这一句是没有标签功能的
+		);
+
+		register_post_type( 'task', $args );
+	}
+
+	add_action( 'init', 'my_custom_post_task' );
+
+	function my_taxonomy_task() {
+		$labels = array(
+			'name'              => _x( '任务分类', '任务分类' ),
+			'singular_name'    => _x( '任务分类', '任务分类' ),
+			'search_items'      => __( '搜索任务分类' ),
+			'all_items'        => __( '所有任务分类' ),
+			'parent_item'      => __( '该任务分类的上级分类' ),
+			'parent_item_colon' => __( '该任务分类的上级分类：' ),
+			'edit_item'        => __( '编辑任务分类' ),
+			'update_item'      => __( '更新任务分类' ),
+			'add_new_item'      => __( '添加新的任务分类' ),
+			'new_item_name'    => __( '新任务分类' ),
+			'menu_name'        => __( '任务分类' ),
+		);
+
+		$args = array(
+			'labels' => $labels,
+			'hierarchical' => true,
+		);
+
+		register_taxonomy( 'task_category', 'task', $args );
+	}
+
+	add_action( 'init', 'my_taxonomy_task', 0 );
 ?>
